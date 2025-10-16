@@ -1,0 +1,189 @@
+{
+  "name": "AI-Powered Pizza Delivery Chatbot with Order Management and Status Tracking",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4c988b8c-3bc7-4077-9893-7aa0f8cb2e4a",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        -112
+      ],
+      "webhookId": "4d0a2aca-26bc-48e9-9ba0-2eca4970a6a1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a friendly pizza delivery chatbot assistant. Your role is to help customers with:\n1. Browsing the pizza menu and answering questions about available pizzas, toppings, sizes, and prices\n2. Taking orders by collecting pizza type, quantity, size, and customer details (name, address, phone)\n3. Providing real-time order status updates when customers ask about their orders\n\nAlways be polite, helpful, and confirm order details before submitting. Use the available tools to fetch menu information, create orders, and check order status."
+        }
+      },
+      "id": "94adf78c-5914-438c-861d-563349027403",
+      "name": "Pizza Chatbot Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "a8e9a947-edba-49c0-ac1f-473ee6211776",
+      "name": "OpenAI GPT-4o-mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        112
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "df68c07b-1e22-40a9-b3b3-592ca0f81fda",
+      "name": "Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "YOUR_MENU_API_ENDPOINT",
+        "options": {}
+      },
+      "id": "1bef6ed0-50f5-4cfd-90f4-b4f77010bfc7",
+      "name": "Get Menu Tool",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        624,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_ORDER_API_ENDPOINT",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"pizza_type\": {{ $fromAI(\"pizza_type\", \"string\", \"Type of pizza to order\") }},\n  \"quantity\": {{ $fromAI(\"quantity\", \"number\", \"Number of pizzas\") }},\n  \"size\": {{ $fromAI(\"size\", \"string\", \"Size of pizza (small, medium, large)\") }},\n  \"customer_name\": {{ $fromAI(\"customer_name\", \"string\", \"Customer's full name\") }},\n  \"delivery_address\": {{ $fromAI(\"delivery_address\", \"string\", \"Full delivery address\") }},\n  \"phone_number\": {{ $fromAI(\"phone_number\", \"string\", \"Customer's phone number\") }}\n}",
+        "options": {}
+      },
+      "id": "d0f51a88-15df-4d56-8a43-eb7c39eeb03f",
+      "name": "Create Order Tool",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        752,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "YOUR_ORDER_STATUS_API_ENDPOINT",
+        "options": {}
+      },
+      "id": "f56e6e5b-3582-4c17-9b38-57d9ff5113de",
+      "name": "Check Order Status Tool",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        112
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Pizza Chatbot Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4o-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Pizza Chatbot Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Pizza Chatbot Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Menu Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Pizza Chatbot Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Order Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Pizza Chatbot Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Order Status Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Pizza Chatbot Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c084cf4-bc97-49f5-baa0-80fe801cb840",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "46825664fedb05443610b3ed410bc0a76896f594e8cd600ce2c77bd0a3d11a62"
+  },
+  "id": "EpTUjhdCTzhfKX8P",
+  "tags": []
+}
